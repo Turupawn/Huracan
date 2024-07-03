@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+</head>
+<body>
+  <input id="connect_button" type="button" value="Connect" onclick="connectWallet()" style="display: none"></input>
+  <p id="account_address" style="display: none"></p>
+  <p id="web3_message"></p>
+  <p id="contract_state"></p>
+  <input type="input"  value="" id="depositPrivateKey" placeholder="private key"></input>
+  <input type="input"  value="" id="depositNullifier" placeholder="nullifier"></input>
+  <input type="button" value="Deposit" onclick="_deposit()"></input>
+  <br>
+  <input type="input"  value="" id="withdrawPrivateKey" placeholder="private key"></input>
+  <input type="input"  value="" id="withdrawNullifier" placeholder="nullifier"></input>
+  <input type="input"  value="" id="withdrawRecipient" placeholder="recipient"></input>
+  <input type="button" value="Withdraw" onclick="_withdraw()"></input>
+  <br>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.3.5/web3.min.js"></script>
+  <script type="text/javascript" src="js/blockchain_stuff.js"></script>
+  <script type="text/javascript" src="js/snarkjs.min.js"></script>
+</body>
+</html>
+
+<script>
+  function _deposit()
+  {
+    depositPrivateKey = document.getElementById("depositPrivateKey").value
+    depositNullifier = document.getElementById("depositNullifier").value
+    deposit(depositPrivateKey, depositNullifier)
+  }
+
+  function _withdraw()
+  {
+    withdrawPrivateKey = document.getElementById("withdrawPrivateKey").value
+    withdrawNullifier = document.getElementById("withdrawNullifier").value
+    withdrawRecipient = document.getElementById("withdrawRecipient").value
+    withdraw(withdrawPrivateKey, withdrawNullifier, withdrawRecipient)
+  }
+</script>
