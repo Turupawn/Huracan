@@ -113,7 +113,8 @@ const onContractInitCallback = async () => {
   document.getElementById("web3_message").textContent="Reading merkle tree data...";
   leaves = []
   let i =0
-  for(let i=0; i<4; i++)// TODO replace with await huracanContract.methods.MAX_SIZE().call()
+  let maxSize = await huracanContract.methods.MAX_SIZE().call()
+  for(let i=0; i<maxSize; i++)
   {
     leaves.push(await huracanContract.methods.commitments(i).call())
   }
