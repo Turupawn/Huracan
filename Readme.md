@@ -26,4 +26,81 @@ _Users can withdraw funds without revealing their identities_
 
 ## 🚀How to launch
 
-### Step 1. TODO
+### Step 1. Build the circuits
+
+Install the dependencies.
+
+```bash
+cd circuits
+git clone https://github.com/iden3/circomlib.git
+```
+
+Now do the trusted setup and generate the artifacts.
+
+```bash
+circom proveWithdrawal.circom --r1cs --wasm --sym
+snarkjs powersoftau new bn128 12 pot12_0000.ptau -v
+snarkjs powersoftau contribute pot12_0000.ptau pot12_0001.ptau --name="First contribution" -v
+snarkjs powersoftau prepare phase2 pot12_0001.ptau pot12_final.ptau -v
+snarkjs groth16 setup proveWithdrawal.r1cs pot12_final.ptau proveWithdrawal_0000.zkey
+snarkjs zkey contribute proveWithdrawal_0000.zkey proveWithdrawal_0001.zkey --name="1st Contributor Name" -v
+snarkjs zkey export verificationkey proveWithdrawal_0001.zkey verification_key.json
+```
+
+Export the artifacts to the webapp.
+
+```bash
+mkdir ../webapp/zk_artifacts
+cp proveWithdrawal_0001.zkey ../webapp/zk_artifacts/proveWithdrawal_final.zkey
+cp proveWithdrawal_js/proveWithdrawal.wasm ../webapp/zk_artifacts/proveWithdrawal_final.zkey
+```
+
+Finally, export the verifier.
+
+```bash
+snarkjs zkey export solidityverifier proveWithdrawal_0001.zkey verifier.sol
+```
+
+### Step 2. Deploy the contracts
+
+Start by deploying the verifier contract now located at `circuits/verifier.sol`.
+
+Next deploy poseidon, remember to change `YOURRPCURL` and `YOURPRIVATEKEY`.
+```bash
+git clone https://github.com/iden3/circomlibjs.git
+node --input-type=module --eval "import { writeFileSync } from 'fs'; import('./circomlibjs/src/poseidon_gencontract.js').then(({ createCode }) => { const output = createCode(2); writeFileSync('poseidonBytecode', output); })"
+cast send --rpc-url YOURRPCURL --private-key YOURPRIVATEKEY --create $(cat bytecode)
+```
+
+And finally, deploy the contract at `contracts/Huracan.sol` by passing as parameter the verifier and poseidon contract you just deployed.
+
+### Step 3. Launch the frontend
+
+Install a web server, I recommend `lite-server` for development purporses.
+
+```bash
+npm install -g lite-server
+```
+
+Now edit the `NETWORK_ID`, `HURACAN_ADDRESS` and `POSEIDON_ADDRESS` on `webapp/js/blockchain_stuff.js` matching the smart contracts you just deployed.
+
+And launch the webapp.
+
+```bash
+cd webapp
+lite-server
+```
+
+### Step 4. Launch the relayer
+
+Install the relayer dependencies
+```bash
+cd relayer
+npm install cors
+```
+
+And start the relayer by replacing the environment variables values: `YOURRPCURL`, `HURACANADDRESS`, `RELAYERPRIVATEKEY`, `YOURADDRESS`. Also remember to fund the relayer address so he can send transactions.
+
+```
+RPC_URL=YOURRPCURL HURACAN_ADDRESS=HURACANADDRESS RELAYER_PRIVATE_KEY=RELAYERPRIVATEKEY RELAYER_ADDRESS=YOURADDRESS node relayer.mjs
+```

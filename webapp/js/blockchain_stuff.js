@@ -1,6 +1,6 @@
 const NETWORK_ID = 534351
 
-const HURACAN_ADDRESS = "0x583284F84c47F1E122D40903EdAC442906E22e73"
+const HURACAN_ADDRESS = "0x8BD32BDC921f5239c0f5d9eaf093B49A67C3b9d0"
 const HURACAN_ABI_PATH = "./json_abi/Huracan.json"
 
 const POSEIDON_ADDRESS = "0x52f28FEC91a076aCc395A8c730dCa6440B6D9519"
@@ -129,10 +129,12 @@ const onWalletConnectedCallback = async () => {
 const deposit = async (depositPrivateKey, depositNullifier) => {
   let commitment = await poseidonContract.methods.poseidon([depositPrivateKey,depositNullifier]).call()
 
+  let value = await huracanContract.methods.NOTE_VALUE().call()
+
   document.getElementById("web3_message").textContent="Please confirm transaction.";
 
   const result = await huracanContract.methods.deposit(commitment)
-    .send({ from: accounts[0], gas: 0, value: 0 })
+    .send({ from: accounts[0], gas: 0, value: value })
     .on('transactionHash', function(hash){
       document.getElementById("web3_message").textContent="Executing...";
     })
