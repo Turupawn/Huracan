@@ -3,7 +3,7 @@
 Fully functional privacy application on ethereum built with the minimum amount of code. Designed to serve as an educational resource for devs and engineer learning about Zero Knowledge.
 
 | Feature | Supported |
-|----------|------------ |
+|---------|:---------:|
 | Circom circuit | ✅ |
 | Poseidon hash | ✅ |
 | Solidity verifier | ✅ |
