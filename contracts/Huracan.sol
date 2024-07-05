@@ -15,8 +15,9 @@ contract Huracan {
     uint nextIndex;
     uint public constant LEVELS = 2;
     uint public constant MAX_SIZE = 4;
-    uint public NOTE_VALUE = 0.01 ether;
-    uint[] filledSubtrees = new uint[](LEVELS);
+    uint public NOTE_VALUE = 0.001 ether;
+    uint[] public filledSubtrees = new uint[](LEVELS);
+    uint[] public emptySubtrees = new uint[](LEVELS);
     address POSEIDON_ADDRESS;
     uint public root;
 
@@ -28,6 +29,13 @@ contract Huracan {
     constructor(address poseidonAddress, address circomVeriferAddress) {
         POSEIDON_ADDRESS = poseidonAddress;
         circomVerifier = ICircomVerifier(circomVeriferAddress);
+
+        for (uint32 i = 1; i < LEVELS; i++) {
+            emptySubtrees[i] = IPoseidon(POSEIDON_ADDRESS).poseidon([
+                emptySubtrees[i-1],
+                0
+            ])[0];
+        }
     }
 
     function deposit(uint commitment) public payable {
@@ -41,7 +49,7 @@ contract Huracan {
         for (uint32 i = 0; i < LEVELS; i++) {
             if (currentIndex % 2 == 0) {
                 left = currentLevelHash;
-                right = 0x0;
+                right = emptySubtrees[i];
                 filledSubtrees[i] = currentLevelHash;
             } else {
                 left = filledSubtrees[i];
